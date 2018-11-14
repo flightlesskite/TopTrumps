@@ -6,58 +6,95 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
 
-// so far, 	Deck reads in data from text file
-//			calls a Card constructor giving a line of data from the file eg 350r 1 9 2 3 0
-//			Instantiates an ArrayList of these Cards
-//			Also holds the category titles in a normal array
+/**
+ * Maintains an ArrayList of card objects. Acts as a collection of Card objects
+ * and enables cards to be exchanged and tracked. At no point can there ever be
+ * more cards in the game than in the deck.
+ * 
+ * Deck can take two forms. The main deck which contains all cards but also the
+ * decks that are supplied to the players.
+ */
 
-public class Deck {
-	// ArrayList for Cards
+public final class Deck {
+
 	private ArrayList<Card> deck;
-
-	// category titles
 	private String[] categories;
 
-	// constructor
-	public Deck() {
+	private final String DECK_NAME = "StarCitizenDeck.txt";
+
+	/**
+	 * Constructs deck from the supplied text file. Acts as a wrapper to an
+	 * ArrayList.
+	 * 
+	 * @see loadDeck
+	 */
+	protected Deck() {
 		deck = new ArrayList<Card>();
-		loadDeck();
+		loadDeck(DECK_NAME);
 	}
 
-	// second constructor
-	public Deck(ArrayList<Card> x) {
-		deck = x;
+	/**
+	 * A constructor for the online version of Top Trumps
+	 * 
+	 * @param deckName
+	 */
+	public Deck(String deckName) {
+		deck = new ArrayList<Card>();
+		loadDeck(deckName);
 	}
 
-	// RD and CH added this
-	public void addCards(ArrayList<Card> newCards) {
+	/**
+	 * Constructs a new Deck object based on a supplied array list of cards.
+	 * 
+	 * @param pileOfCards,
+	 *            arraylist of Card to act as a Deck
+	 */
+	protected Deck(ArrayList<Card> pileOfCards) {
+		deck = pileOfCards;
+	}
+
+	 /**
+	  * Accessor method for the Deck class.
+	  * @return an array list of cards, ie. a deck
+	  */
+	 public ArrayList<Card> getDeck() {
+	 return deck;
+	 }
+	
+	/**
+	 * Adds a card to the end of the deck.
+	 * 
+	 * @param card,
+	 *            Card object to be appended
+	 */
+	protected void addCard(Card card) {
+		deck.add(card);
+	}
+	
+	/**
+	 * Appends an ArrayList of cards to the end of the deck.
+	 * 
+	 * @param newCards,
+	 *            Arraylist to be added at the bottom of the deck
+	 */
+	protected void addCards(ArrayList<Card> newCards) {
 		deck.addAll(newCards);
 	}
 
-	// Calvin added this class
-	// required to access the arraylist in Player class
-	public ArrayList<Card> getCards() {
-		return deck;
-	}
-	
-	// Calvin added this class
-	public void addCard (Card card)	{
-		deck.add(card);
-	}
-
-	// reads data in from text file, sends each line from text file into
-	public void loadDeck() {
+	/**
+	 * Loads information from the deck and adds it to the Deck object
+	 */
+	private void loadDeck(String deckName) {
 
 		FileReader fr = null;
 		Scanner in = null;
 		try {
 			try {
-
 				// count to get the first line in text file (it is unique)
 				int count = 0;
 
 				// reads file, and puts scanner around the reader
-				fr = new FileReader("testDeck.txt");
+				fr = new FileReader(DECK_NAME);
 				in = new Scanner(fr);
 
 				// gets data line by line
@@ -66,95 +103,114 @@ public class Deck {
 				while (in.hasNextLine()) {
 					// if it's the first line
 					if (count < 1) {
-						titleLine = in.nextLine(); // gets category titles if first line - dunno what to do with this
-													// yet
+						titleLine = in.nextLine(); // gets category titles if first line
+
 						storeCategories(titleLine);
 						// System.err.println(titleLine);
 					} else {
 						dataLine = in.nextLine(); // gets data from other lines
 						buildDeck(dataLine); // sends each line of info to deck building class
-						// System.err.println(dataLine);
 					}
 
 					count++;
 				}
 
 			} finally {
-				// close if necessary
 				if (fr != null) {
 					fr.close();
 					in.close();
 				}
 			}
 		} catch (IOException ioe) {
-			System.out.println("File i/o error");
+			ioe.printStackTrace();
 			System.exit(1);
 		}
-		shuffle(); //Need to shuffle the ting before distributing
 	}
 
-	// method that can add to ArrayList - parameter could be string from textFile
-	// think the game manager will use this method right? Or this class could read
-	// from file too
-	public void buildDeck(String cardInfo) {
+	/**
+	 * Add a new card to the end of the deck
+	 * 
+	 * @param cardInfo,
+	 *            String representation of the category values associated with the
+	 *            card
+	 */
+	private void buildDeck(String cardInfo) {
 		Card card = new Card(cardInfo, categories);
 		deck.add(card);
 	}
 
-	// method to parse and store the 5 category titles and "description"
+	/**
+	 * Stores the names of the categories associated with the deck of cards
+	 * 
+	 * @param titleLine,
+	 *            String showing names of categories separated by whitespace
+	 */
 	private void storeCategories(String titleLine) {
 		categories = new String[6];
 		titleLine = titleLine.substring(12);
-		Scanner in = new Scanner(titleLine);
-		// split deckInfo into the 6 separate words
 		categories = titleLine.split(" ");
 	}
 
-	// shuffles deck - got that method when from stack overflow - basically does it
-	// all
-	private void shuffle() {
+	/**
+	 * Shuffles the card objects in the Deck
+	 */
+	public void shuffle() {
 		Collections.shuffle(deck);
 	}
 
-	// gets top card - DO WE NEED THIS
+	/**
+	 * Draws the top card from a deck
+	 * 
+	 * @return the top card in a deck of cards (the first card in a deck array)
+	 */
 	public Card drawCard() {
 		return deck.get(0);
 	}
 
-	// getter for deckSize
+	/**
+	 * Returns the size of the deck
+	 * 
+	 * @return int value representing the size of deck
+	 */
 	public int getDeckSize() {
 		return deck.size();
 	}
 
-	// getter for array of categories
-	public String[] getCategories() {
+	/**
+	 * Returns the array holding the names of the categories of the deck
+	 * 
+	 * @return categories, String array of the names of categories
+	 */
+	protected String[] getCategories() {
 		return categories;
 	}
-	//method to print out individual cards based on the decks they are in and card counter
-	public void testPrint(Deck x) {
-		int i = 0;
-		for (Card each : x.getDeck()) {
-			System.out.println(i +" "+ each.cardToString());
-			System.out.print("-----------------------\n");
-			i++;
-		}
 
+	/**
+	 * Split the current deck into two. The point of the split is determined by
+	 * quotient of the size of the deck and divisor. The returned Deck object
+	 * represents the latter part of the original deck result from the split
+	 * 
+	 * @param divisor,
+	 *            how the deck will be split, eg if 2 it be split in half, if 3
+	 *            original deck is a third and returned deck 2 thirds
+	 * @return splitDeck, new Deck object resulting from the split of the original
+	 *         deck
+	 */
+	private ArrayList<Card> split(int divisor) {
+		ArrayList<Card> splitDeck = new ArrayList<Card>(deck.subList((deck.size() / divisor), deck.size()));
+		deck.removeAll(splitDeck);
+		return splitDeck;
 	}
 
-	public ArrayList<Card> getDeck() {
-		return deck;
-	}
-
-	public ArrayList<Card> split(int numberOfPlayers) {
-
-		ArrayList<Card> spdeck = new ArrayList<Card>(deck.subList((deck.size() / numberOfPlayers), deck.size())); // makes
-																													// new
-																													// list
-		deck.removeAll(spdeck);
-		return spdeck;
-
-	}
-	//this method allows the deck to be split based on the number of players in a game
+	/**
+	 * Advanced split splits the decks corresponding to the number of players within
+	 * the game. It returns an array of decks to be used to distribute the cards
+	 * among the players.
+	 * 
+	 * @param numberOfPlayers,
+	 *            number of players within the game includes computer opponents
+	 * @return decks, an array of decks one for each player
+	 */
 	public Deck[] advancedSplit(int numberOfPlayers) {
 		Deck[] decks = new Deck[numberOfPlayers];
 		switch (numberOfPlayers) {
@@ -190,42 +246,6 @@ public class Deck {
 			decks[3] = d8;
 			decks[4] = d10;
 		}
-
 		return decks;
-
 	}
-
-	public static void main(String args[]) {
-		Deck test = new Deck();
-		// System.out.println("-------------------------------------------------");
-		test.shuffle();
-		test.testPrint(test);
-
-		// Deck splitDeck = new Deck(test.split(2));
-		System.out.println("-------------------------------------------------");
-		System.out.println("-------------------------------------------------");
-		// test.testPrint(test);
-		// System.out.println("-------------------------------------------------");
-		// test.testPrint(splitDeck);
-		// System.out.println("-------------------------------------------------");
-		// System.out.println(test.drawCard().cardToString());
-		// System.out.println(splitDeck.drawCard().cardToString());
-
-		Deck[] dong = test.advancedSplit(5);
-		dong[0].testPrint(dong[0]);
-		System.out.println("-------------------------------------------------");
-		System.out.println("-------------------------------------------------");
-		// test.testPrint(test);
-		dong[1].testPrint(dong[1]);
-		System.out.println("-------------------------------------------------");
-		System.out.println("-------------------------------------------------");
-		dong[2].testPrint(dong[2]);
-		System.out.println("-------------------------------------------------");
-		System.out.println("-------------------------------------------------");
-		dong[3].testPrint(dong[3]);
-		System.out.println("-------------------------------------------------");
-		System.out.println("-------------------------------------------------");
-		dong[4].testPrint(dong[4]);
-	}
-
 }

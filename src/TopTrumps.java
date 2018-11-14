@@ -10,8 +10,8 @@ public class TopTrumps {
 	public static void main(String[] args) {
 		
 		System.out.println("--------------------");
-		System.out.println("--- Top Nerd Patrol   -look at this -- Calvin was here");
-		System.out.println("--------------------"); //etest 
+		System.out.println("---- Top Trumps ----");
+		System.out.println("--------------------");
 		
 		// command line switches
 		boolean onlineMode = false;
@@ -27,7 +27,7 @@ public class TopTrumps {
 			
 		}
 		
-		// We cannot run online and command line mode simultaniously
+		// We cannot run online and command line mode simultaneously
 		if (onlineMode && commandLineMode) {
 			System.out.println("ERROR: Both online and command line mode selected, select one or the other!");
 			System.exit(0);
@@ -43,7 +43,5 @@ public class TopTrumps {
 			String[] commandArgs = {String.valueOf(printTestLog)};
 			TopTrumpsCLIApplication.main(commandArgs);
 		}
-		
 	}
-	
 }
